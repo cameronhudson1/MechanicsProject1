@@ -31,15 +31,15 @@ void printForest(int size, char forest[size][size]){
 	for(int i = 0; i < size; i++){
 		for(int j = 0; j < size; j++){
 			if(forest[i][j] == BURNING){
-				printf(COLOR_RED "%c" COLOR_RESET, forest[i][j]);
+				printf(/*COLOR_RED*/ "%c" /*COLOR_RESET*/, forest[i][j]);
 
 			}		
 			if(forest[i][j] == LIVINGTREE){
-				printf(COLOR_GREEN "%c" COLOR_RESET, forest[i][j]);
+				printf(/*COLOR_GREEN*/ "%c" /*COLOR_RESET*/, forest[i][j]);
 
 			}
 			if(forest[i][j] == BURNEDTREE){
-				printf(COLOR_GRAY "%c" COLOR_RESET, forest[i][j]);
+				printf(/*COLOR_GRAY*/ "%c" /*COLOR_RESET*/, forest[i][j]);
 
 			}
 			if(forest[i][j] == EMPTY){
@@ -117,6 +117,7 @@ int applySpread(int size, char forest[size][size], int i, int j, int  probCatch)
 **/
 int findBurningNeighbor(int size, char forest[size][size], int row, int col){
         int currRow, currCol;
+	int neighbors;
 	
 	//Iterate through values
         for(int i = -1; i < 2; i++){
@@ -140,11 +141,11 @@ int findBurningNeighbor(int size, char forest[size][size], int row, int col){
 			
 			//Add fireNeighbor if a '*' is found
                         if(forest[currRow][currCol] == BURNING && (row != currRow || col != currCol)){
-                        	return 1;	
+                        	neighbors++;	
                         }
                 }
         }
-        return 0;
+        return neighbors;
 }
 
 
@@ -156,18 +157,22 @@ int burnForest(int size, char forest[size][size], int  probCatch){
 	int changedElements = 0;
 	char tempForest[size][size];
 	copyForest(size, forest, tempForest);
+	int neighbors;
 	
 	for(int i =0; i < size; i++){
 		for(int j = 0; j < size; j++){
-			if(tempForest[i][j] == LIVINGTREE && findBurningNeighbor(size, tempForest, i, j)){
+			if(tempForest[i][j] == LIVINGTREE && (neighbors = findBurningNeighbor(size, tempForest, i, j) > 2)){
 				//Space is good for burning, if the probability works out
-				if(applySpread(size, forest, i, j, probCatch)){
+				if(applySpread(size, forest, i, j, probCatch*neighbors)){
 					changedElements++;
 				}
 			}
 			if(tempForest[i][j] == BURNING){
-				forest[i][j] = BURNEDTREE;
-				changedElements++;
+				int randTemp = generateRandInt();
+				if(randTemp < probCatch){
+					forest[i][j] = BURNEDTREE;
+					changedElements++;
+				}	
 			}
 		}
 	}
